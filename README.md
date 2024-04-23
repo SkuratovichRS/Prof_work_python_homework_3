@@ -1,0 +1,1 @@
+Домашнее задание на тему «Веб-скрапинг» https://github.com/netology-code/py-homeworks-advanced/tree/new_hw_scrapping/6.Web-scrapping
