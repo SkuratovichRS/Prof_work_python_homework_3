@@ -13,21 +13,18 @@ def get_fake_headers():
 
 class HHParser:
     def __init__(self):
-        self.url_1 = 'https://spb.hh.ru/search/vacancy?text=python&area=1&area=2&page=7'
-        self.url_2 = 'https://spb.hh.ru/search/vacancy?text=python&area=1&area=2&page=8'
-        self.url_3 = 'https://spb.hh.ru/search/vacancy?text=python&area=1&area=2&page=9'
+        self.base_url = 'https://spb.hh.ru/search/vacancy?text=python&area=1&area=2'
+        self.pages_url = 'https://spb.hh.ru/search/vacancy?text=python&area=1&area=2&page='
 
     def get_tags(self):
-        response_1 = requests.get(url=self.url_1, headers=get_fake_headers())
-        response_2 = requests.get(url=self.url_2, headers=get_fake_headers())
-        response_3 = requests.get(url=self.url_3, headers=get_fake_headers())
+        response_1 = requests.get(url=self.base_url, headers=get_fake_headers())
         page_1_data = BeautifulSoup(response_1.text, features='lxml')
-        page_2_data = BeautifulSoup(response_2.text, features='lxml')
-        page_3_data = BeautifulSoup(response_3.text, features='lxml')
-        article_tags_1 = page_1_data.find_all('div', class_='vacancy-serp-item-body')
-        article_tags_2 = page_2_data.find_all('div', class_='vacancy-serp-item-body')
-        article_tags_3 = page_3_data.find_all('div', class_='vacancy-serp-item-body')
-        article_tags = article_tags_1 + article_tags_2 + article_tags_3
+        article_tags = page_1_data.find_all('div', class_='vacancy-serp-item-body')
+        for i in range(1, 10):
+            url = f'{self.pages_url}{str(i)}'
+            response = requests.get(url=url, headers=get_fake_headers())
+            page_data = BeautifulSoup(response.text, features='lxml')
+            article_tags += page_data.find_all('div', class_='vacancy-serp-item-body')
         return article_tags
 
     def get_info(self):
@@ -38,7 +35,6 @@ class HHParser:
             if vacancy:
                 if 'django' in vacancy.text.lower() or 'flask' in vacancy.text.lower():
                     valid_article_tags.append(article_tag)
-
         data = []
         for article_tag in valid_article_tags:
             link_tag = article_tag.find('a', class_='bloko-link')
